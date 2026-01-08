@@ -1,0 +1,17 @@
+[package]
+name = "uk_backend"
+license = "MIT"
+description = ""
+authors = ["timothebot", "noebachofner"]
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.8.8"
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1.49.0", features = ["full"] }
+tower = { version = "0.5.2", features = ["util", "timeout"]}
+tower-http = { version = "0.6.8", features = ["add-extension", "trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1.0", features = ["serde", "v4"] }
