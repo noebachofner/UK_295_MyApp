@@ -1,0 +1,1783 @@
+{
+	"info": {
+		"_postman_id": "2e8f3a66-2a73-41d5-8a6a-908d1a92f71e",
+		"name": "myApp-local",
+		"description": "Folder order for runner. Init runs once per run via collection pre-request script (no extra HTTP call).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "51277600",
+		"_collection_link": "https://decher-daf35e92-8708688.postman.co/workspace/Dirk-Decher's-Workspace~95a3200e-944c-47d3-8370-065abdf8a056/collection/51277600-2e8f3a66-2a73-41d5-8a6a-908d1a92f71e?action=share&source=collection_link&creator=51277600"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "01 Auth",
+					"item": [
+						{
+							"name": "1) sign-in (wrong username) -> expect 404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test('Status code is 404', function () {",
+											"  pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test('Body matches', function () {",
+											"  const jsonData = pm.response.json();",
+											"  pm.expect(jsonData.message).to.eql('User johndode1 not found');",
+											"  pm.expect(jsonData.error).to.eql('Not Found');",
+											"  pm.expect(jsonData.statusCode).to.eql(404);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"johndode1\",\n  \"password\": \"P@fsdfafasfasf\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2) sign-in (admin successfully) -> store access_token_admin",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test('Status code is 201', function () {",
+											"  pm.response.to.have.status(201);",
+											"});",
+											"",
+											"pm.test('Store access_token_admin', function () {",
+											"  const jsonData = pm.response.json();",
+											"  pm.expect(!!jsonData.access_token).to.be.true;",
+											"  pm.collectionVariables.set('access_token_admin', jsonData.access_token);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3) sign-in (user successfully) -> store access_token_user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test('Status code is 201', function () {",
+											"  pm.response.to.have.status(201);",
+											"});",
+											"",
+											"pm.test('Store access_token_user', function () {",
+											"  const jsonData = pm.response.json();",
+											"  pm.expect(!!jsonData.access_token).to.be.true;",
+											"  pm.collectionVariables.set('access_token_user', jsonData.access_token);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"user\",\n  \"password\": \"user\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "02 Profile",
+					"item": [
+						{
+							"name": "1) profile (unauthorized) -> expect 401",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"pm.test('Status code is 401', function () {",
+											"  pm.response.to.have.status(401);",
+											"});",
+											"",
+											"pm.test('Message is Unauthorized', function () {",
+											"  const jsonData = pm.response.json();",
+											"  pm.expect(jsonData.message).to.eql('Unauthorized');",
+											"});"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/auth/profile",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2) profile admin (successfully) -> expect 200",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"pm.test('Status code is 200', function () {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test('Admin profile matches', function () {",
+											"  const jsonData = pm.response.json();",
+											"  pm.expect(jsonData.id).to.eql(1);",
+											"  pm.expect(jsonData.username).to.eql('admin');",
+											"});"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token_admin}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/auth/profile",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3) profile user (successfully) -> expect 200",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test('Status code is 200', function () {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test('User profile matches', function () {",
+											"  const jsonData = pm.response.json();",
+											"  pm.expect(jsonData.id).to.eql(2);",
+											"  pm.expect(jsonData.username).to.eql('user');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token_user}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/auth/profile",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "03 Register validations",
+					"item": [
+						{
+							"name": "1) create user (username too short) -> expect 400",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Response should contain error message about username length\", function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(Array.isArray(jsonData.message)).to.be.true;",
+											"    pm.expect(jsonData.message[0]).to.include('longer than or equal to 8');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"1234567\",\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2) create user (username too long) -> expect 400",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Response body contains error message\", function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(Array.isArray(jsonData.message)).to.be.true;",
+											"    pm.expect(jsonData.message[0]).to.include('shorter than or equal to 20');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"abcdefghijklmnopqrstuvw\",\n  \"email\": \"test@test.ch\",\n  \"password\": \"abcD1$234\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3) create user (username must be lowercase) -> expect 400",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Response body contains error message\", function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(Array.isArray(jsonData.message)).to.be.true;",
+											"    pm.expect(jsonData.message[0]).to.include('lowercase');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"abcD1234\",\n  \"email\": \"test@test.ch\",\n  \"password\": \"abcd1234\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4) create user (email wrong) -> expect 400",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Response body contains error message\", function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(Array.isArray(jsonData.message)).to.be.true;",
+											"    pm.expect(jsonData.message[0]).to.include('email must be an email');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"abcd1234\",\n  \"email\": \"test\",\n  \"password\": \"abcD123$\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "5) create user (password too short) -> expect 400",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Response body contains error message\", function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(Array.isArray(jsonData.message)).to.be.true;",
+											"    pm.expect(jsonData.message[0]).to.include('longer than or equal to 8');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"abcd1234\",\n  \"email\": \"test@test.ch\",\n  \"password\": \"abcD$1\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "6) create user (password missing special) -> expect 400",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Response body contains error message\", function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(Array.isArray(jsonData.message)).to.be.true;",
+											"    pm.expect(jsonData.message[0]).to.include('special character');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"abcd1234\",\n  \"email\": \"test@test.ch\",\n  \"password\": \"abcD1222\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "7) create user (password missing uppercase) -> expect 400",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Response body contains error message\", function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(Array.isArray(jsonData.message)).to.be.true;",
+											"    pm.expect(jsonData.message[0]).to.include('uppercase');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"abcd1234\",\n  \"email\": \"test@test.ch\",\n  \"password\": \"abcd$222\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "8) create user (password missing number) -> expect 400",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Response body contains an array of error messages\", function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(Array.isArray(jsonData.message)).to.be.true;",
+											"    pm.expect(jsonData.message[0]).to.include('number');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"abcd1234\",\n  \"email\": \"test@test.ch\",\n  \"password\": \"aAAD$aaa\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "04 user",
+					"item": [
+						{
+							"name": "1) create user (successfully) -> expect 201 + store created_user_id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 201\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"pm.test(\"Respponse body contains user id\", function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(jsonData).haveOwnPropertyDescriptor('id');",
+											"    pm.collectionVariables.set('created_user_id', jsonData.id);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"user1234\",\n  \"email\": \"user1234@local.ch\",\n  \"password\": \"user1234A$\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2) create user again (username already exists) -> expect 409",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 409\", function () {",
+											"    pm.response.to.have.status(409);",
+											"});",
+											"pm.test(\"Response body contains error message\", function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(!!jsonData.message).to.be.true;",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"user1234\",\n  \"email\": \"user1234@local.ch\",\n  \"password\": \"user1234A$\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3) sign-in (created-user successfully) -> store access_token_created_user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 201\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"pm.test(\"Response contains access_toke\", function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(jsonData).haveOwnProperty(\"access_token\");",
+											"    pm.collectionVariables.set('access_token_created_user', jsonData.access_token);",
+											"})",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"user1234\",\n  \"password\": \"user1234A$\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4) profile user (successfully) -> expect 200",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Response body contains expected message\", function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(jsonData.username).to.eql(\"user1234\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token_created_user}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/auth/profile",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "5) profile admin (successfully) -> expect 200",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Response body contains expected message\", function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(jsonData.username).to.eql(\"admin\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token_admin}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/auth/profile",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "6) profile createdUser (successfully) --> expected 200",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response body contains expected message\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.username).to.eql(\"admin\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token_admin}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/auth/profile",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "7) delete user/created_user_id (unauthorized) --> expect 401",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/user/{{created_user_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"{{created_user_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "8) delete user/created_user_id (user unsuccessfully delete) -> expect 403",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 403\", function () {\r",
+											"    pm.response.to.have.status(403);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token_user}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/user/{{created_user_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"{{created_user_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "9( delete /user/created_user_id (admin successsfully delete) -> expect 200",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Respponse body contains user id\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.username).to.equal(\"user1234\");\r",
+											"    pm.collectionVariables.unset('created_user_id');\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token_admin}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/user/{{created_user_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"{{created_user_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "article",
+			"item": [
+				{
+					"name": "3) sign-in (user successfully) -> store access_token_user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201', function () {",
+									"  pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Store access_token_user', function () {",
+									"  const jsonData = pm.response.json();",
+									"  pm.expect(!!jsonData.access_token).to.be.true;",
+									"  pm.collectionVariables.set('access_token_user', jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"user\",\n  \"password\": \"user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all articles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"    pm.collectionVariables.set(\"articleCount\", jsonData.length);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/article",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"article"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create article",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    pm.collectionVariables.set(\"articleId\", pm.response.json().id);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"articleName\": \"Apple\",\r\n  \"articleDescription\": \"Apple is a fruit\",\r\n  \"articlePrice\": 10\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/article",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"article"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOne Article",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/article/{{articleId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"article",
+								"{{articleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all articles (+1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Length + 1\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.be.an('array');\r",
+									"    const len = pm.collectionVariables.get(\"articleCount\") + 1;\r",
+									"    pm.expect(jsonData.length).to.equal(len);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/article",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"article"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "article aktualisieren",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Return updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var requestBody = JSON.parse(pm.request.body.raw);",
+									"    var articleId = pm.collectionVariables.get(\"articleId\");",
+									"    ",
+									"    // Verify ID matches the collection variable",
+									"    pm.expect(jsonData.id).to.eql(Number(articleId));",
+									"    ",
+									"    // Compare each field from response with request body",
+									"    pm.expect(jsonData.articleName).to.eql(requestBody.articleName);",
+									"    pm.expect(jsonData.articleDescription).to.eql(requestBody.articleDescription);",
+									"    pm.expect(jsonData.articlePrice).to.eql(requestBody.articlePrice);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"articleName\": \"Apple updated\",\r\n  \"articleDescription\": \"Apple is a fruit updated\",\r\n  \"articlePrice\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/article/{{articleId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"article",
+								"{{articleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "article ersetzen invalid id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 409\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": -1,\r\n  \"articleName\": \"2 Apple updated\",\r\n  \"articleDescription\": \"2 Apple is a fruit updated\",\r\n  \"articlePrice\": 200,\r\n  \"version\": 1\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/article/{{articleId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"article",
+								"{{articleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "article ersetzen invalid data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": \"{{articleId}}\",\r\n  \"articleName\": \"2 Apple updated\",\r\n  \"articleDescription\": \"2 Apple is a fruit updated\",\r\n  \"articlePrice\": 200,\r\n  \"version\": 1\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/article/{{articleId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"article",
+								"{{articleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "article ersetzen invalid version",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 409\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": {{articleId}},\r\n  \"articleName\": \"2 Apple updated\",\r\n  \"articleDescription\": \"2 Apple is a fruit updated\",\r\n  \"articlePrice\": 200,\r\n  \"version\": 1\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/article/{{articleId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"article",
+								"{{articleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "article ersetzen valid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"return Apple updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.articleName).to.eql(\"2 Apple updated\");",
+									"    pm.expect(jsonData.articleDescription).to.eql(\"2 Apple is a fruit updated\");",
+									"    pm.expect(jsonData.articlePrice).to.eql(200.00);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": {{articleId}},\r\n  \"articleName\": \"2 Apple updated\",\r\n  \"articleDescription\": \"2 Apple is a fruit updated\",\r\n  \"articlePrice\": 200,\r\n  \"version\": 2\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/article/{{articleId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"article",
+								"{{articleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"return Apple updated\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.articleName).to.eql(\"2 Apple updated\");\r",
+									"    pm.expect(jsonData.articleDescription).to.eql(\"2 Apple is a fruit updated\");\r",
+									"    pm.expect(jsonData.articlePrice).to.eql(200.00);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"articleName\": \"Apple updated\",\r\n  \"articleDescription\": \"Apple is a fruit updated\",\r\n  \"articlePrice\": 100\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/article/{{articleId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"article",
+								"{{articleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all articles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Length + 1\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.be.an('array');\r",
+									"    const len = pm.collectionVariables.get(\"articleCount\");\r",
+									"    pm.expect(jsonData.length).to.equal(len);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/article",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"article"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    pm.collectionVariables.unset(\"articleId\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"articleName\": \"Apple updated\",\r\n  \"articleDescription\": \"Apple is a fruit updated\",\r\n  \"articlePrice\": 100\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/article/{{articleId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"article",
+								"{{articleId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "todo",
+			"item": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "access_token_admin",
+			"value": ""
+		},
+		{
+			"key": "access_token_user",
+			"value": ""
+		},
+		{
+			"key": "access_token_created_user",
+			"value": ""
+		},
+		{
+			"key": "todoId",
+			"value": ""
+		},
+		{
+			"key": "todoIdUAdmin",
+			"value": ""
+		},
+		{
+			"key": "articleCount",
+			"value": ""
+		}
+	]
+}

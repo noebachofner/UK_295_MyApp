@@ -1,0 +1,5 @@
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@scarf/scarf'
+  - argon2
+  - sqlite3

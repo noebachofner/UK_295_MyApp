@@ -1,0 +1,147 @@
+stages:
+  - quality
+  - test
+#  - docs
+# im Moment lassen wir das mit den Pages auskommentiert
+#  - pages
+  - build
+
+default:
+  image: node:24
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@latest --activate
+    - pnpm --version
+    - pnpm install --frozen-lockfile
+  cache:
+    key:
+      files:
+        - pnpm-lock.yaml
+    paths:
+      - .pnpm-store/
+
+# ---------- Quality ----------
+lint:
+  stage: quality
+  script:
+    - pnpm run lint
+
+# ---------- Tests ----------
+test_cov:
+  stage: test
+  script:
+    - pnpm run test:cov
+  artifacts:
+    when: always
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+    paths:
+      - coverage/
+    expire_in: 7 days
+
+test_e2e:
+  stage: test
+  script:
+    - pnpm run test:e2e
+
+# ---------- Docs generation ----------
+#docs_generate:
+#  stage: docs
+#  script:
+#    # version from tag (strip leading v)
+#    - |
+#     VERSION="${CI_COMMIT_TAG#v}"
+#     if [ -z "$VERSION" ]; then VERSION="0.0.0-dev+${CI_COMMIT_SHORT_SHA}"; fi
+#     printf "export const version = '%s';\n" "$VERSION" > src/modules/typed-config/configs/config.version.ts
+#     cat src/modules/typed-config/configs/config.version.ts
+#
+#    - pnpm run docs:generate
+#  artifacts:
+#    when: on_success
+#    paths:
+#      - docs/
+#    expire_in: 7 days
+
+# ---------- Docs generation ----------
+# docs_generate:
+#   stage: docs
+#   script:
+#     # version from tag (strip leading v)
+#     - |
+#       VERSION="${CI_COMMIT_TAG#v}"
+#       if [ -z "$VERSION" ]; then VERSION="0.0.0-dev+${CI_COMMIT_SHORT_SHA}"; fi
+#       printf "export const version = '%s';\n" "$VERSION" > src/modules/typed-config/configs/config.version.ts
+#       cat src/modules/typed-config/configs/config.version.ts
+      
+#     - pnpm run compo-doc
+#   artifacts:
+#     when: on_success
+#     paths:
+#       - documentation/
+#     expire_in: 7 days
+
+# # ---------- GitLab Pages ----------
+# pages:
+#   stage: pages
+#   needs: ["docs_generate"]
+#   script:
+#     - rm -rf public
+#     - mkdir -p public
+
+#     # Compodoc -> public/
+#     - cp -r documentation public/compodoc
+
+#     # Optional: generated markdown docs (raw)
+#     - |
+#       if [ -d "docs" ]; then
+#         cp -r docs public/docs
+#       fi
+
+#     # Simple landing page
+#     - |
+#       cat > public/index.html << 'HTML'
+#       <!doctype html>
+#       <html lang="de">
+#       <head>
+#         <meta charset="utf-8" />
+#         <meta name="viewport" content="width=device-width, initial-scale=1" />
+#         <title>Projekt Docs</title>
+#         <style>
+#           body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:900px;margin:40px auto;padding:0 16px}
+#           a{display:inline-block;margin:8px 0}
+#           code{background:#f3f3f3;padding:2px 6px;border-radius:6px}
+#         </style>
+#       </head>
+#       <body>
+#         <h1>Projekt Dokumentation</h1>
+#         <p><a href="./compodoc/">📘 Compodoc (HTML)</a></p>
+#         <p><a href="./docs/">🧾 Generated Docs (raw)</a></p>
+#       </body>
+#       </html>
+#       HTML
+
+#   artifacts:
+#     paths:
+#       - public
+#   rules:
+#     # Pages deployen auf default branch und auf Tags
+#     - if: $CI_COMMIT_TAG
+#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# ---------- Build ----------
+build:
+  stage: build
+  script:
+    - |
+      VERSION="${CI_COMMIT_TAG#v}"
+      if [ -z "$VERSION" ]; then VERSION="0.0.0-dev+${CI_COMMIT_SHORT_SHA}"; fi
+      printf "export const version = '%s';\n" "$VERSION" > src/modules/typed-config/configs/config.version.ts
+
+    - pnpm run build
+  artifacts:
+    when: on_success
+    paths:
+      - dist/
+    expire_in: 7 days

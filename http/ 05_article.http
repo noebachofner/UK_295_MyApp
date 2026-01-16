@@ -1,0 +1,236 @@
+### 0) sign-in (user successfully) -> store access_token_user
+POST {{base_url}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "user"
+}
+
+> {%
+    client.test("Status code is 201", () => {
+        client.assert(response.status === 201, "Expected 201, got " + response.status);
+    });
+
+    const jsonData = response.body;
+
+    client.test("Store access_token_user", () => {
+        client.assert(!!jsonData.access_token, "access_token missing");
+        client.global.set("access_token_user", jsonData.access_token);
+    });
+%}
+
+### 1) get all articles (store articleCount)
+GET {{base_url}}/article
+Authorization: Bearer {{access_token_user}}
+
+> {%
+    client.test("Status code is 200", () => {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+
+    const jsonData = response.body;
+
+    client.test("Response is an array + store length", () => {
+        client.assert(Array.isArray(jsonData), "Expected array");
+        client.global.set("articleCount", jsonData.length);
+    });
+%}
+
+### 2) create article (store articleId)
+POST {{base_url}}/article
+Authorization: Bearer {{access_token_user}}
+Content-Type: application/json
+
+{
+  "articleName": "Apple",
+  "articleDescription": "Apple is a fruit",
+  "articlePrice": 10
+}
+
+> {%
+    client.test("Status code is 201", () => {
+        client.assert(response.status === 201, "Expected 201, got " + response.status);
+    });
+
+    const jsonData = response.body;
+
+    client.test("Store articleId", () => {
+        client.assert(typeof jsonData.id !== "undefined", "id missing");
+        client.global.set("articleId", jsonData.id);
+    });
+%}
+
+### 3) getOne Article
+GET {{base_url}}/article/{{articleId}}
+Authorization: Bearer {{access_token_user}}
+
+> {%
+    client.test("Status code is 200", () => {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### 4) get all articles (+1)
+GET {{base_url}}/article
+Authorization: Bearer {{access_token_user}}
+
+> {%
+    client.test("Status code is 200", () => {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+
+    const jsonData = response.body;
+
+    client.test("Length + 1", () => {
+        client.assert(Array.isArray(jsonData), "Expected array");
+        const len = Number(client.global.get("articleCount")) + 1;
+        client.assert(jsonData.length === len, "Expected length " + len + ", got " + jsonData.length);
+    });
+%}
+
+### 5) article aktualisieren (PATCH) -> verify returned equals request
+PATCH {{base_url}}/article/{{articleId}}
+Authorization: Bearer {{access_token_user}}
+Content-Type: application/json
+
+{
+  "articleName": "Apple updated",
+  "articleDescription": "Apple is a fruit updated",
+  "articlePrice": 100
+}
+
+> {%
+    client.test("Status code is 200", () => {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+
+    const jsonData = response.body;
+    const articleId = client.global.get("articleId");
+
+    client.test("Return updated", () => {
+        client.assert(jsonData.id === Number(articleId), "ID mismatch");
+        console.log(jsonData);
+        client.assert(jsonData.articleName === "Apple updated", "articleName mismatch");
+        client.assert(jsonData.articleDescription === "Apple is a fruit updated", "articleDescription mismatch");
+        client.assert(jsonData.articlePrice === 100, "articlePrice mismatch");
+    });
+%}
+
+### 6) article ersetzen invalid id -> expect 409
+PUT {{base_url}}/article/{{articleId}}
+Authorization: Bearer {{access_token_user}}
+Content-Type: application/json
+
+{
+  "id": -1,
+  "articleName": "2 Apple updated",
+  "articleDescription": "2 Apple is a fruit updated",
+  "articlePrice": 200,
+  "version": 1
+}
+
+> {%
+    client.test("Status code is 409", () => {
+        client.assert(response.status === 409, "Expected 409, got " + response.status);
+    });
+%}
+
+### 7) article ersetzen invalid data -> expect 400
+PUT {{base_url}}/article/{{articleId}}
+Authorization: Bearer {{access_token_user}}
+Content-Type: application/json
+
+{
+  "id": "{{articleId}}",
+  "articleName": "2 Apple updated",
+  "articleDescription": "2 Apple is a fruit updated",
+  "articlePrice": 200,
+  "version": 1
+}
+
+> {%
+    client.test("Status code is 400", () => {
+        client.assert(response.status === 400, "Expected 400, got " + response.status);
+    });
+%}
+
+### 8) article ersetzen invalid version -> expect 409
+PUT {{base_url}}/article/{{articleId}}
+Authorization: Bearer {{access_token_user}}
+Content-Type: application/json
+
+{
+  "id": {{articleId}},
+  "articleName": "2 Apple updated",
+  "articleDescription": "2 Apple is a fruit updated",
+  "articlePrice": 200,
+  "version": 1
+}
+
+> {%
+    client.test("Status code is 409", () => {
+        client.assert(response.status === 409, "Expected 409, got " + response.status);
+    });
+%}
+
+### 9) delete success -> expect 200 + verify fields
+DELETE {{base_url}}/article/{{articleId}}
+Authorization: Bearer {{access_token_user}}
+Content-Type: application/json
+
+{
+  "articleName": "Apple updated",
+  "articleDescription": "Apple is a fruit updated",
+  "articlePrice": 100
+}
+
+> {%
+    client.test("Status code is 200", () => {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+
+    const jsonData = response.body;
+
+    client.test("return Apple updated", () => {
+        client.assert(jsonData.articleName === "Apple updated", "articleName mismatch");
+        client.assert(jsonData.articleDescription === "Apple is a fruit updated", "articleDescription mismatch");
+        client.assert(Number(jsonData.articlePrice) === 100, "articlePrice mismatch: " + jsonData.articlePrice);
+    });
+%}
+
+### 10) get all articles (length back to original)
+GET {{base_url}}/article
+Authorization: Bearer {{access_token_user}}
+
+> {%
+    client.test("Status code is 200", () => {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+
+    const jsonData = response.body;
+
+    client.test("Length back to original", () => {
+        client.assert(Array.isArray(jsonData), "Expected array");
+        const len = Number(client.global.get("articleCount"));
+        client.assert(jsonData.length === len, "Expected length " + len + ", got " + jsonData.length);
+    });
+%}
+
+### 11) delete error (delete again) -> expect 404 + unset articleId
+DELETE {{base_url}}/article/{{articleId}}
+Authorization: Bearer {{access_token_user}}
+Content-Type: application/json
+
+{
+  "articleName": "Apple updated",
+  "articleDescription": "Apple is a fruit updated",
+  "articlePrice": 100
+}
+
+> {%
+    client.test("Status code is 404", () => {
+        client.assert(response.status === 404, "Expected 404, got " + response.status);
+        client.global.set("articleId", "");
+    });
+%}
